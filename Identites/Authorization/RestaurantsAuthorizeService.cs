@@ -10,11 +10,6 @@ public class RestaurantsAuthorizeService(IUserContext userContext) : IRestaurant
     {
         var user = userContext.GetCurrentUser();
 
-        if (user == null)
-        {
-            return false;
-        }
-
         if (resourceOperation == ResourceOperation.read)
             return true;
 

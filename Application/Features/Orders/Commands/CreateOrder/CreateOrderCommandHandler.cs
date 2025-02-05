@@ -37,7 +37,6 @@ public class CreateOrderCommandHandler(
                     CreatedAt = DateTime.UtcNow
                 });
             }
-
         }
         catch (Exception ex)
         {
