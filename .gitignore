@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .vs
+.env
+.env.local
 
 bin
 obj

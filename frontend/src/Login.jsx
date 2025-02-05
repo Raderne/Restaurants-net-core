@@ -1,30 +1,23 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "./Contexts/AuthContext";
 
 const Login = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const ref = useRef(null);
 	const navigation = useNavigate();
+	const { login } = useAuth();
 
-	let url = "https://localhost:7156/api/identity/login";
-
-	const login = async () => {
+	const Login = async () => {
 		let user = {
 			email: email,
 			password: password,
 		};
 
-		let response = await fetch(url, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(user),
-		});
+		let data = await login(user);
 
-		if (response.ok) {
-			let data = await response.json();
+		if (data) {
 			console.log(data);
 
 			if (data.succeeded) {
@@ -53,7 +46,7 @@ const Login = () => {
 				onChange={(e) => setPassword(e.target.value)}
 				placeholder="Password"
 			/>
-			<button onClick={login}>Login</button>
+			<button onClick={Login}>Login</button>
 			<div
 				className="result"
 				ref={ref}
