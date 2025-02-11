@@ -69,7 +69,7 @@ public class RegisterCommandHandler(
             var emailContent = $"<h1>Welcome {newUser.FirstName} {newUser.LastName}</h1>" +
                 $"<p>Your registration is successful</p>";
 
-            await emailService.SendEmailAsync("relmarzouki@gmail.com", "Welcome To Restaurants App", emailContent);
+            await emailService.SendEmailAsync(newUser.Email, "Welcome To Restaurants App", emailContent);
 
             response.Message = "User registration successful";
             response.RegisteredUser = mapper.Map<RegisterUserDto>(newUser);

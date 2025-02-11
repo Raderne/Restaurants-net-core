@@ -1,85 +1,123 @@
+import { useAuth } from "@/contexts/AuthContext";
+import { LoginUser } from "@/models/Users";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLocation, useNavigate } from "react-router";
+import { useToast } from "@/hooks/use-toast";
+
+const formSchema = z.object({
+	email: z.string().email("Please enter a valid email address"),
+	password: z.string().min(6),
+});
 
 const Login = () => {
+	const { login } = useAuth();
+	const location = useLocation();
+	const { from } = location.state || { from: { pathname: "/" } };
+	const navigate = useNavigate();
+	const { toast } = useToast();
+
+	const form = useForm<LoginUser>({
+		resolver: zodResolver(formSchema),
+		defaultValues: {
+			email: "",
+			password: "",
+		},
+	});
+
+	const onSubmit = form.handleSubmit(async (values: LoginUser) => {
+		const res = await login(values);
+
+		if (res?.succeeded) {
+			toast({
+				title: "Success",
+				description: res?.message,
+			});
+
+			setTimeout(() => {
+				navigate(from);
+			}, 300);
+		} else {
+			toast({
+				title: "Error",
+				description: res?.validationErrors?.join(", ") || res?.message,
+				variant: "destructive",
+			});
+		}
+	});
+
 	return (
-		<Tabs
-			defaultValue="account"
-			className="w-[400px]"
-		>
-			<TabsList className="grid w-full grid-cols-2 bg-[#27272a]">
-				<TabsTrigger value="account">Account</TabsTrigger>
-				<TabsTrigger value="password">Password</TabsTrigger>
-			</TabsList>
-			<TabsContent value="account">
-				<Card>
-					<CardHeader>
-						<CardTitle>Account</CardTitle>
-						<CardDescription>
-							Make changes to your account here. Click save when you're done.
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-2">
-						<div className="space-y-1">
-							<Label htmlFor="name">Name</Label>
-							<Input
-								id="name"
-								defaultValue="Pedro Duarte"
-							/>
-						</div>
-						<div className="space-y-1">
-							<Label htmlFor="username">Username</Label>
-							<Input
-								id="username"
-								defaultValue="@peduarte"
-							/>
-						</div>
-					</CardContent>
-					<CardFooter>
-						<Button>Save changes</Button>
-					</CardFooter>
-				</Card>
-			</TabsContent>
-			<TabsContent value="password">
-				<Card>
-					<CardHeader>
-						<CardTitle>Password</CardTitle>
-						<CardDescription>
-							Change your password here. After saving, you'll be logged out.
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-2">
-						<div className="space-y-1">
-							<Label htmlFor="current">Current password</Label>
-							<Input
-								id="current"
-								type="password"
-							/>
-						</div>
-						<div className="space-y-1">
-							<Label htmlFor="new">New password</Label>
-							<Input
-								id="new"
-								type="password"
-							/>
-						</div>
-					</CardContent>
-					<CardFooter>
-						<Button>Save password</Button>
-					</CardFooter>
-				</Card>
-			</TabsContent>
-		</Tabs>
+		<Form {...form}>
+			<form
+				onSubmit={onSubmit}
+				className="space-y-8 border border-gray-200 p-8 rounded-lg shadow-md shadow-white"
+			>
+				<FormField
+					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<>
+							<FormItem>
+								<FormLabel>Email</FormLabel>
+								<FormControl>
+									<Input
+										placeholder="Email"
+										{...field}
+									/>
+								</FormControl>
+								{form.formState.errors.email && (
+									<FormMessage role="alert">
+										{form.formState.errors.email.message}
+									</FormMessage>
+								)}
+							</FormItem>
+						</>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="password"
+					render={({ field }) => (
+						<>
+							<FormItem>
+								<FormLabel>Password</FormLabel>
+								<FormControl>
+									<Input
+										type="password"
+										placeholder="Password"
+										{...field}
+									/>
+								</FormControl>
+								{form.formState.errors.password && (
+									<FormMessage role="alert">
+										{form.formState.errors.password.message}
+									</FormMessage>
+								)}
+							</FormItem>
+						</>
+					)}
+				/>
+				<Button
+					type="submit"
+					className="w-full"
+					variant={"outline"}
+				>
+					Login
+				</Button>
+			</form>
+		</Form>
 	);
 };
 

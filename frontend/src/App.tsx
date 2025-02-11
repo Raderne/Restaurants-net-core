@@ -7,38 +7,49 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import { ThemeProvider } from "./contexts/theme-provider";
+import { Toaster } from "./components/ui/toaster";
+import { Suspense } from "react";
+import { SkeletonCard } from "./components/SkeletonCard";
 
 function App() {
 	return (
-		<AuthProvider>
-			<Routes>
-				<Route element={<Home />}>
-					<Route
-						index
-						element={<Restaurants />}
-					/>
-					<Route
-						path="restaurants/:restaurantId"
-						element={
-							<ProtectedRoute>
-								<Restaurant />
-							</ProtectedRoute>
-						}
-					/>
-				</Route>
+		<ThemeProvider>
+			<AuthProvider>
+				<Routes>
+					<Route element={<Home />}>
+						<Route
+							index
+							element={<Restaurants />}
+						/>
+						<Route
+							path="restaurants/:restaurantId"
+							element={
+								<ProtectedRoute>
+									<Restaurant />
+								</ProtectedRoute>
+							}
+						/>
+					</Route>
 
-				<Route element={<AuthLayout />}>
-					<Route
-						path="login"
-						element={<Login />}
-					/>
-					<Route
-						path="register"
-						element={<Register />}
-					/>
-				</Route>
-			</Routes>
-		</AuthProvider>
+					<Route element={<AuthLayout />}>
+						<Route
+							path="login"
+							element={
+								<Suspense fallback={<SkeletonCard />}>
+									<Login />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="register"
+							element={<Register />}
+						/>
+					</Route>
+				</Routes>
+			</AuthProvider>
+			<Toaster />
+		</ThemeProvider>
 	);
 }
 

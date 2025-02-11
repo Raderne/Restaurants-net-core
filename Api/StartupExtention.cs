@@ -29,47 +29,56 @@ public static class StartupExtention
 
         builder.Services.AddSwaggerGen(cfg =>
         {
-            cfg.AddSecurityDefinition("BearerAuth", new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.Http,
-                Scheme = "Bearer",
-            });
+            cfg.AddSecurityDefinition(
+                "BearerAuth",
+                new OpenApiSecurityScheme { Type = SecuritySchemeType.Http, Scheme = "Bearer" }
+            );
 
-            cfg.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+            cfg.AddSecurityRequirement(
+                new OpenApiSecurityRequirement
                 {
-                    new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference
+                        new OpenApiSecurityScheme
                         {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "BearerAuth"
-                        }
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "BearerAuth",
+                            },
+                        },
+                        new string[] { }
                     },
-                    new string[] { }
                 }
-            });
+            );
         });
 
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("CorsPolicy", policy =>
-            {
-                policy.WithOrigins("https://localhost:7156")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .SetIsOriginAllowed((host) => true)
-                .AllowCredentials();
-            });
+            options.AddPolicy(
+                "CorsPolicy",
+                policy =>
+                {
+                    policy
+                        .WithOrigins("https://localhost:7156")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .SetIsOriginAllowed((host) => true)
+                        .AllowCredentials();
+                }
+            );
 
-            options.AddPolicy("SignalRCorsPolicy", policy =>
-            {
-                policy.WithOrigins("http://localhost:5173")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .SetIsOriginAllowed((host) => true)
-                .AllowCredentials();
-            });
+            options.AddPolicy(
+                "SignalRCorsPolicy",
+                policy =>
+                {
+                    policy
+                        .WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .SetIsOriginAllowed((host) => true)
+                        .AllowCredentials();
+                }
+            );
         });
 
         return builder.Build();
