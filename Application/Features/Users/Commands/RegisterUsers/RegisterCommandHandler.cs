@@ -1,11 +1,16 @@
-﻿using Application.Contracts.Users;
+﻿using Application.Contracts.Infrastructure;
+using Application.Contracts.Users;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
 
 namespace Application.Features.Users.Commands.RegisterUsers;
 
-public class RegisterCommandHandler(IIdentityRepository identityRepository, ITransactionRepository transactionRepository, IMapper mapper) : IRequestHandler<RegisterCommand, RegisterCommandResponse>
+public class RegisterCommandHandler(
+    IIdentityRepository identityRepository,
+    ITransactionRepository transactionRepository,
+    IMapper mapper,
+    IEmailService emailService) : IRequestHandler<RegisterCommand, RegisterCommandResponse>
 {
     public async Task<RegisterCommandResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
@@ -60,6 +65,11 @@ public class RegisterCommandHandler(IIdentityRepository identityRepository, ITra
             }
 
             await transactionRepository.CommitTransactionAsync(cancellationToken);
+
+            var emailContent = $"<h1>Welcome {newUser.FirstName} {newUser.LastName}</h1>" +
+                $"<p>Your registration is successful</p>";
+
+            await emailService.SendEmailAsync("relmarzouki@gmail.com", "Welcome To Restaurants App", emailContent);
 
             response.Message = "User registration successful";
             response.RegisteredUser = mapper.Map<RegisterUserDto>(newUser);
